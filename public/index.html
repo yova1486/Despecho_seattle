@@ -1,23 +1,78 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Despecho Seattle</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      margin: 0;
+    }
+    h1 {
+      margin-bottom: 20px;
+      font-size: 2rem;
+      text-align: center;
+    }
+    button {
+      background: #e63946;
+      border: none;
+      color: #fff;
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+    button:hover {
+      background: #c9182b;
+    }
+    #msg {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: #ccc;
+    }
+  </style>
 </head>
 <body>
-  <h1>Bienvenido a Despecho Seattle</h1>
-  <button id="buyBtn">Comprar Ticket</button>
+  <h1>🎉 Bienvenido a Despecho Seattle 🎶</h1>
+  <button id="buyBtn">Comprar ahora</button>
+  <p id="msg"></p>
 
   <script>
-    document.getElementById("buyBtn").addEventListener("click", async () => {
-      const res = await fetch("/api/buy", { method: "POST" });
-      const data = await res.json();
-      if (data.checkout && data.checkout.checkout_page_url) {
-        window.location.href = data.checkout.checkout_page_url;
-      } else {
-        alert("Error creando el checkout");
-        console.log(data);
+    const btn = document.getElementById("buyBtn");
+    const msg = document.getElementById("msg");
+
+    btn.addEventListener("click", async () => {
+      msg.textContent = "Creando link de pago...";
+      try {
+        const res = await fetch("/api/buy", { method: "POST" });
+        const data = await res.json();
+
+        const url =
+          data.checkout_page_url ||
+          data?.payment_link?.url ||
+          data?.checkout?.checkout_page_url;
+
+        if (url) {
+          msg.textContent = "Redirigiendo a Square Checkout...";
+          window.location.href = url;
+        } else {
+          msg.textContent = "Error: no se pudo crear el checkout.";
+          console.error("Respuesta inesperada:", data);
+          alert("Error creando el checkout. Revisa consola.");
+        }
+      } catch (err) {
+        console.error("❌ Error en fetch:", err);
+        msg.textContent = "Error de conexión con el servidor.";
+        alert("Error de conexión con el servidor.");
       }
     });
   </script>
