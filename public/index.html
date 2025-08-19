@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Despecho Seattle</title>
+</head>
+<body>
+  <h1>Bienvenido a Despecho Seattle</h1>
+  <button id="buyBtn">Comprar Ticket</button>
+
+  <script>
+    document.getElementById("buyBtn").addEventListener("click", async () => {
+      const res = await fetch("/api/buy", { method: "POST" });
+      const data = await res.json();
+      if (data.checkout && data.checkout.checkout_page_url) {
+        window.location.href = data.checkout.checkout_page_url;
+      } else {
+        alert("Error creando el checkout");
+        console.log(data);
+      }
+    });
+  </script>
+</body>
+</html>
